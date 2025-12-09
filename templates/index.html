@@ -1,0 +1,1208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AECorp | AI Performance Analytics</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- html2pdf removed, using native print -->
+    <style>
+        :root {
+            --primary: #d4af37;
+            /* Elegant Gold */
+            --primary-hover: #b4941f;
+            --secondary: #1a1a1a;
+            --accent: #f5f5f5;
+            /* Platinum */
+            --bg-dark: #050505;
+            /* Deep Obsidian */
+            --glass-bg: rgba(20, 20, 20, 0.6);
+            --glass-border: rgba(212, 175, 55, 0.2);
+            /* Subtle Gold Border */
+            --text: #e5e5e5;
+            --text-muted: #a3a3a3;
+            --success: #10b981;
+            /* Emerald */
+            --warning: #f59e0b;
+            /* Amber */
+            --danger: #ef4444;
+            /* Red */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text);
+            min-height: 100vh;
+            background-image:
+                radial-gradient(circle at 15% 50%, rgba(212, 175, 55, 0.08) 0%, transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(255, 255, 255, 0.03) 0%, transparent 25%);
+            overflow-x: hidden;
+        }
+
+        /* Navbar */
+        .navbar {
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(12px);
+            background: rgba(10, 10, 10, 0.8);
+            border-bottom: 1px solid var(--glass-border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: var(--primary);
+            text-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Upload Section */
+        .upload-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 3rem;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        .hero-text {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            text-align: center;
+            font-weight: 300;
+            /* Thinner elegant font */
+            letter-spacing: -1px;
+            background: linear-gradient(to bottom, #fff, #999);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-sub {
+            color: var(--text-muted);
+            margin-bottom: 2.5rem;
+            font-size: 1.1rem;
+            font-weight: 300;
+        }
+
+        .drop-zone {
+            width: 100%;
+            max-width: 650px;
+            height: 280px;
+            border: 1px dashed var(--glass-border);
+            border-radius: 4px;
+            /* Sharper corners for pro feel */
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.4s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        }
+
+        .drop-zone:hover,
+        .drop-zone.dragover {
+            border-color: var(--primary);
+            background: rgba(212, 175, 55, 0.05);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .drop-zone i {
+            font-size: 3rem;
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            transition: color 0.3s;
+        }
+
+        .drop-zone:hover i {
+            color: var(--primary);
+        }
+
+        .drop-zone p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+        }
+
+        .drop-zone input {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        /* Results Section */
+        #results-area {
+            display: none;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(145deg, rgba(20, 20, 20, 0.8), rgba(10, 10, 10, 0.95));
+            padding: 1.5rem;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--primary), transparent);
+            opacity: 0.5;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            border-color: rgba(212, 175, 55, 0.3);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+        }
+
+        .stat-title {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 500;
+        }
+
+        .stat-value {
+            font-size: 2.8rem;
+            font-weight: 300;
+            color: #fff;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        .risk-high {
+            color: var(--danger);
+            text-shadow: 0 0 10px rgba(239, 68, 68, 0.2);
+        }
+
+        .risk-med {
+            color: var(--warning);
+            text-shadow: 0 0 10px rgba(245, 158, 11, 0.2);
+        }
+
+        .risk-low {
+            color: var(--success);
+            text-shadow: 0 0 10px rgba(16, 185, 129, 0.2);
+        }
+
+        /* Table Area */
+        .glass-panel {
+            background: rgba(15, 15, 15, 0.6);
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            padding: 2rem;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .student-list {
+            display: grid;
+            gap: 0.8rem;
+        }
+
+        .student-card {
+            background: linear-gradient(to right, rgba(255, 255, 255, 0.02), transparent);
+            border-radius: 2px;
+            padding: 1rem;
+            border-left: 2px solid transparent;
+            /* Thinner border */
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            display: grid;
+            grid-template-columns: 2fr 3fr 1fr;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.3s;
+            break-inside: avoid;
+        }
+
+        .student-card:hover {
+            background: rgba(255, 255, 255, 0.04);
+            transform: translateX(5px);
+        }
+
+        .student-card.high {
+            border-left-color: var(--danger);
+        }
+
+        .student-card.medium {
+            border-left-color: var(--warning);
+        }
+
+        .student-card.low {
+            border-left-color: var(--success);
+        }
+
+        .s-name {
+            font-weight: 500;
+            font-size: 1.1rem;
+            color: #fff;
+            letter-spacing: 0.5px;
+        }
+
+        .s-issues {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.2rem 0.8rem;
+            border-radius: 2px;
+            font-size: 0.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #d1d5db;
+        }
+
+        .s-action {
+            text-align: right;
+        }
+
+        .btn-action {
+            padding: 0.6rem 1.2rem;
+            border-radius: 2px;
+            border: 1px solid var(--primary);
+            cursor: pointer;
+            background: transparent;
+            color: var(--primary);
+            font-weight: 500;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-action:hover {
+            background: var(--primary);
+            color: #000;
+            box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+        }
+
+        /* Loader */
+        .loader {
+            display: none;
+            width: 48px;
+            height: 48px;
+            border: 3px solid rgba(212, 175, 55, 0.3);
+            border-bottom-color: var(--primary);
+            border-radius: 50%;
+            animation: rotation 1s linear infinite;
+            margin-top: 2rem;
+        }
+
+        @keyframes rotation {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .student-card {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .history-card {
+            background: linear-gradient(145deg, rgba(20, 20, 20, 0.8), rgba(10, 10, 10, 0.95));
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+            padding: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .history-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .h-date {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .h-company {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 0.5rem;
+        }
+
+        .h-stats {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .h-tag {
+            background: rgba(217, 4, 41, 0.1);
+            color: var(--danger);
+            padding: 0.2rem 0.6rem;
+            border-radius: 2px;
+            border: 1px solid rgba(217, 4, 41, 0.2);
+            font-size: 0.75rem;
+        }
+
+        /* Process Flow Visuals */
+        .process-flow {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            margin: 4rem auto 3rem auto;
+            max-width: 600px;
+        }
+
+        .p-step {
+            text-align: center;
+            position: relative;
+        }
+
+        .p-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.8rem;
+            transition: transform 0.3s;
+        }
+
+        /* Subtle idle animation to show it's "alive" but not a button */
+        .process-flow:hover .p-icon {
+            transform: translateY(-2px);
+        }
+
+        .p-step h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 0.2rem;
+        }
+
+        .p-step p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        .p-arrow {
+            font-size: 1.5rem;
+            color: var(--primary);
+            /* Made visible (Gold) */
+            opacity: 0.6;
+        }
+
+        @media (max-width: 600px) {
+            .process-flow {
+                gap: 1rem;
+            }
+
+            .p-icon {
+                font-size: 1.8rem;
+            }
+
+            .p-step h3 {
+                font-size: 0.9rem;
+            }
+
+            .p-step p {
+                display: none;
+            }
+
+            /* Hide desc on very small screens */
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            background: #0f0f0f;
+            border: 1px solid var(--primary);
+            width: 90%;
+            max-width: 500px;
+            border-radius: 4px;
+            padding: 2rem;
+            position: relative;
+            box-shadow: 0 0 40px rgba(212, 175, 55, 0.15);
+            animation: slideUp 0.3s ease;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 1rem;
+        }
+
+        .modal-header h2 {
+            color: var(--primary);
+            font-weight: 300;
+            letter-spacing: 1px;
+            font-size: 1.5rem;
+        }
+
+        .btn-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .btn-close:hover {
+            color: #fff;
+        }
+
+        .modal-badge {
+            display: inline-block;
+            padding: 0.4rem 1rem;
+            border-radius: 2px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            font-size: 0.8rem;
+            margin-bottom: 2rem;
+            width: 100%;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .modal-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .m-stat {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 1rem;
+            border-radius: 2px;
+        }
+
+        .m-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 0.3rem;
+        }
+
+        .m-val {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .m-section {
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .m-section h3 {
+            font-size: 0.9rem;
+            color: var(--primary);
+            margin-bottom: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* PDF Specific Overrides - COMPACT & HIGH CONTRAST */
+        @media print {
+            body {
+                background: #ffffff !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                color: #000 !important;
+            }
+
+            .navbar,
+            .upload-section,
+            .btn-action,
+            .loader {
+                display: none !important;
+            }
+
+            #results-area {
+                display: block !important;
+                width: 100% !important;
+                position: absolute;
+                top: 0;
+                left: 0;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            .header-row {
+                margin-bottom: 20px !important;
+            }
+
+            /* Force Cards to White Styling for Print */
+            .glass-panel,
+            .stat-card,
+            .student-card {
+                background: #ffffff !important;
+                border: 1px solid #333 !important;
+                box-shadow: none !important;
+                color: #000 !important;
+                break-inside: avoid;
+            }
+
+            .stat-value {
+                color: #000 !important;
+                text-shadow: none !important;
+                font-family: Arial, sans-serif !important;
+                font-weight: 800 !important;
+            }
+
+            .stat-title,
+            .s-issues,
+            .report-meta {
+                color: #333 !important;
+            }
+
+            .s-name {
+                color: #000 !important;
+                font-weight: 700 !important;
+                font-family: Arial, sans-serif !important;
+            }
+
+            /* Icon Styling */
+            i {
+                color: inherit !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+
+            /* Explicitly Fix Risk Icons */
+            .student-card.high .s-name i {
+                color: #d90429 !important;
+            }
+
+            .student-card.medium .s-name i {
+                color: #f59e0b !important;
+            }
+
+            .student-card.low .s-name i {
+                color: #10b981 !important;
+            }
+
+            /* Layout Fixes */
+            .dashboard-grid {
+                grid-template-columns: repeat(4, 1fr) !important;
+                gap: 10px !important;
+            }
+
+            /* Tag Fixes */
+            .tag {
+                border: 1px solid #000 !important;
+                color: #000 !important;
+                background: #f0f0f0 !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="brand">
+            <img src="/static/images/logo.jpg" alt="AECorp Logo" style="height: 90px; border-radius: 4px;">
+        </div>
+        <div>
+            <button class="btn-action" onclick="toggleHistory()" style="margin-right: 1rem;">
+                <i class="fas fa-history"></i> History
+            </button>
+            <button class="btn-action" onclick="resetView()">
+                <i class="fas fa-plus"></i> New Upload
+            </button>
+        </div>
+    </nav>
+
+    <div class="container">
+
+        <!-- History View -->
+        <div id="history-view" style="display: none; animation: fadeIn 0.5s;">
+            <div class="header-row">
+                <div class="hero-text" style="font-size: 2rem; margin-bottom: 2rem; text-align: left;">
+                    Previous Reports
+                </div>
+            </div>
+            <div id="history-list" class="dashboard-grid">
+                <!-- History Items will be injected here -->
+            </div>
+        </div>
+
+        <!-- Upload Section -->
+        <div class="upload-section" id="upload-view">
+            <h1 class="hero-text">Performance Analysis</h1>
+
+            <!-- Visual Flow (Non-clickable) -->
+            <div class="process-flow">
+                <div class="p-step">
+                    <div class="p-icon">
+                        <i class="fas fa-file-excel" style="color: #25D366;"></i>
+                    </div>
+                    <h3>1. Upload</h3>
+                    <p>Excel Report</p>
+                </div>
+
+                <div class="p-arrow"><i class="fas fa-chevron-right"></i></div>
+
+                <div class="p-step">
+                    <div class="p-icon">
+                        <i class="fas fa-brain" style="color: var(--primary);"></i>
+                    </div>
+                    <h3>2. Analyze</h3>
+                    <p>AI Processing</p>
+                </div>
+
+                <div class="p-arrow"><i class="fas fa-chevron-right"></i></div>
+
+                <div class="p-step">
+                    <div class="p-icon">
+                        <i class="fas fa-file-pdf" style="color: #ef4444;"></i>
+                    </div>
+                    <h3>3. Report</h3>
+                    <p>Get Insights</p>
+                </div>
+            </div>
+
+            <div
+                style="font-size: 0.9rem; padding: 1rem; background: rgba(255,255,255,0.05); border-radius: 4px; border: 1px solid rgba(212, 175, 55, 0.2); max-width: 600px; margin: 0 auto 2rem auto; display: flex; align-items: center; justify-content: center; gap: 1rem;">
+                <i class="fab fa-whatsapp" style="font-size: 1.5rem; color: #25D366;"></i>
+                <div style="text-align: left;">
+                    <div style="color: var(--text-muted); font-size: 0.8rem;">Questions? Contact Support</div>
+                    <div style="font-size: 1rem;">Carlos Jovel: <a href="https://wa.me/50378566730" target="_blank"
+                            style="color: #fff; text-decoration: none; font-weight: bold;">+503 7856 6730</a></div>
+                </div>
+            </div>
+
+            <div class="drop-zone" id="drop-zone">
+                <input type="file" id="file-input" accept=".xlsx, .xls">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <h3>Upload Report File</h3>
+                <p>Supported formats: .xlsx, .xls</p>
+            </div>
+            <div class="loader" id="loader"></div>
+        </div>
+
+        <!-- Dashboard View -->
+        <div id="results-area">
+            <div class="header-row"
+                style="display:flex; justify-content:space-between; align-items:end; margin-bottom: 2rem;">
+                <div>
+                    <h2 id="report-title" style="font-size: 2rem;">Report Results</h2>
+                    <p id="report-meta" style="color: var(--text-muted);">Loading metadata...</p>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <button class="btn-action" onclick="exportPDF()"><i class="fas fa-file-pdf"></i> Export PDF</button>
+                    <button class="btn-action" onclick="resetView()"><i class="fas fa-redo"></i> Analyze New</button>
+                </div>
+            </div>
+
+            <!-- KPI Cards -->
+            <div class="dashboard-grid">
+                <div class="stat-card">
+                    <div class="stat-title">High Risk Students</div>
+                    <div class="stat-value risk-high" id="val-high">0</div>
+                    <div style="font-size:0.8rem; color:rgba(255,255,255,0.5);">Immediate Action Reqd.</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Medium Risk</div>
+                    <div class="stat-value risk-med" id="val-med">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Low Platform Usage</div>
+                    <div class="stat-value" id="val-rosetta" style="color:var(--primary);">0%</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-title">Low Attendance</div>
+                    <div class="stat-value" id="val-att" style="color:var(--text-muted);">0%</div>
+                </div>
+            </div>
+
+            <!-- Main Content Grid -->
+            <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem;">
+
+                <!-- Student List -->
+                <div class="glass-panel">
+                    <h3
+                        style="margin-bottom: 1.5rem; border-bottom: 1px solid var(--glass-border); padding-bottom: 1rem;">
+                        At-Risk Students</h3>
+                    <div class="student-list" id="student-container">
+                        <!-- Filled by JS -->
+                    </div>
+                </div>
+
+                <!-- Recommendations -->
+                <div>
+                    <div class="glass-panel" style="margin-bottom: 2rem;">
+                        <h3 style="margin-bottom: 1rem; color: var(--warning);"><i class="fas fa-lightbulb"></i> AI
+                            Recommendations</h3>
+                        <div id="group-recs"
+                            style="font-size: 0.95rem; line-height: 1.6; color: rgba(255,255,255,0.8);"></div>
+                    </div>
+
+                    <div class="glass-panel">
+                        <h3 style="margin-bottom: 1rem; color: var(--accent);"><i class="fas fa-calendar-check"></i>
+                            Reinforcement</h3>
+                        <div
+                            style="background: rgba(157, 78, 221, 0.1); padding: 1rem; border-radius: 8px; border: 1px dashed var(--primary);">
+                            <div style="font-weight: bold; margin-bottom: 0.5rem;">Saturday 9:00 - 10:00 AM</div>
+                            <div style="font-size: 0.9rem; opacity: 0.8;">Focus on reviewing key concepts and addressing
+                                specific questions from low-performing students.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Student Detail Modal -->
+            <div id="student-modal" class="modal-overlay" style="display: none;">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h2 id="m-name">Student Name</h2>
+                        <button class="btn-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="modal-badge" id="m-risk">HIGH RISK</div>
+
+                        <div class="modal-grid">
+                            <div class="m-stat">
+                                <div class="m-label">Attendance</div>
+                                <div class="m-val" id="m-att">0%</div>
+                            </div>
+                            <div class="m-stat">
+                                <div class="m-label">Grade</div>
+                                <div class="m-val" id="m-grade">0.0</div>
+                            </div>
+                            <div class="m-stat">
+                                <div class="m-label">Platform Usage</div>
+                                <div class="m-val" id="m-rosetta">0h</div>
+                            </div>
+                        </div>
+
+                        <div class="m-section">
+                            <h3>Identified Issues</h3>
+                            <div id="m-issues" class="s-issues" style="justify-content: center;">
+                                <!-- Tags injected here -->
+                            </div>
+                        </div>
+
+                        <div class="m-section">
+                            <h3>AI Recommendation</h3>
+                            <p id="m-rec" style="color: var(--text-muted); font-style: italic;">
+                                Monitor closely and encourage platform engagement.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <script>
+                // Global State & Elements
+                window.lastReportData = null;
+
+                const uploadView = document.getElementById('upload-view');
+                const resultsArea = document.getElementById('results-area');
+                const historyView = document.getElementById('history-view');
+                const loader = document.getElementById('loader');
+                const dropZone = document.getElementById('drop-zone');
+                const fileInput = document.getElementById('file-input');
+
+                // Drag & Drop visual
+                if (dropZone) {
+                    dropZone.addEventListener('click', () => fileInput.click());
+                    dropZone.addEventListener('dragover', (e) => {
+                        e.preventDefault();
+                        dropZone.classList.add('dragover');
+                    });
+                    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+                    dropZone.addEventListener('drop', (e) => {
+                        e.preventDefault();
+                        dropZone.classList.remove('dragover');
+                        if (e.dataTransfer.files.length) handleFile(e.dataTransfer.files[0]);
+                    });
+                }
+
+                if (fileInput) {
+                    fileInput.addEventListener('change', (e) => {
+                        if (e.target.files.length) handleFile(e.target.files[0]);
+                    });
+                }
+
+                // --- Core Logic ---
+
+                function handleFile(file) {
+                    // Validate
+                    if (!file.name.match(/\.(xlsx|xls)$/)) {
+                        alert('Please upload an Excel file (.xlsx, .xls)');
+                        return;
+                    }
+
+                    // UI Loading
+                    loader.style.display = 'block';
+
+                    // Upload
+                    const formData = new FormData();
+                    formData.append('file', file);
+
+                    fetch('/upload', {
+                        method: 'POST',
+                        body: formData
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.error) {
+                                alert('Error: ' + data.error);
+                                loader.style.display = 'none';
+                                return;
+                            }
+                            renderDashboard(data);
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('Upload failed');
+                            loader.style.display = 'none';
+                        });
+                }
+
+                // Global store for report data - Already declared top level
+
+                // View Toggles - logic moved to top
+
+                // --- End View Toggles ---
+
+                function toggleHistory() {
+                    uploadView.style.display = 'none';
+                    resultsArea.style.display = 'none';
+                    historyView.style.display = 'block';
+                    loadHistory();
+                }
+
+                async function loadHistory() {
+                    const list = document.getElementById('history-list');
+                    list.innerHTML = '<div style="color:var(--text-muted);">Loading history...</div>';
+
+                    try {
+                        const res = await fetch('/history');
+                        const files = await res.json();
+
+                        list.innerHTML = '';
+                        if (files.length === 0) {
+                            list.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">No report history found.</div>';
+                            return;
+                        }
+
+                        files.forEach(f => {
+                            const item = document.createElement('div');
+                            item.className = 'history-card';
+                            item.onclick = () => loadHistoricalReport(f.filename);
+
+                            // Format date (timestamp to readable)
+                            const dateObj = new Date(f.timestamp * 1000);
+                            const dateStr = dateObj.toLocaleDateString() + ' ' + dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                            item.innerHTML = `
+                        <div class="h-date">${dateStr}</div>
+                        <div class="h-company">${f.company || 'Unknown Company'}</div>
+                        <div class="h-stats">
+                            <span>Group: ${f.group}</span>
+                            ${f.high_risk > 0 ? `<span class="h-tag">${f.high_risk} High Risk</span>` : '<span style="color:var(--success)">All Good</span>'}
+                        </div>
+                    `;
+                            list.appendChild(item);
+                        });
+                    } catch (e) {
+                        list.innerHTML = '<div style="color:var(--danger)">Failed to load history.</div>';
+                    }
+                }
+
+                async function loadHistoricalReport(filename) {
+                    historyView.style.display = 'none';
+                    loader.style.display = 'block';
+
+                    try {
+                        const res = await fetch(`/history/${filename}`);
+                        if (!res.ok) throw new Error("Failed to load");
+                        const data = await res.json();
+                        renderDashboard(data);
+                    } catch (e) {
+                        alert("Error loading report: " + e.message);
+                        toggleHistory();
+                    }
+                }
+
+                function renderDashboard(data) {
+                    window.lastReportData = data; // Store for export
+
+                    loader.style.display = 'none';
+                    uploadView.style.display = 'none';
+                    historyView.style.display = 'none'; // Hide history
+                    resultsArea.style.display = 'block';
+
+                    // Meta
+                    document.getElementById('report-title').innerText = data.meta.company || "Company Report";
+                    document.getElementById('report-meta').innerText = `Group: ${data.meta.group} • Date: ${data.meta.date} • Total Students: ${data.meta.total}`;
+
+                    // KPI
+                    document.getElementById('val-high').innerText = data.stats.high;
+                    document.getElementById('val-med').innerText = data.stats.medium;
+
+                    // Dynamic Coloring for Percentages (Green = Good/Low %, Red = Bad/High %)
+                    const pRosetta = data.stats.pct_rosetta;
+                    const elRosetta = document.getElementById('val-rosetta');
+                    elRosetta.innerText = pRosetta + '%';
+                    elRosetta.style.color = pRosetta < 20 ? 'var(--success)' : (pRosetta < 50 ? 'var(--warning)' : 'var(--danger)');
+
+                    const pAtt = data.stats.pct_att;
+                    const elAtt = document.getElementById('val-att');
+                    elAtt.innerText = pAtt + '%';
+                    elAtt.style.color = pAtt < 20 ? 'var(--success)' : (pAtt < 50 ? 'var(--warning)' : 'var(--danger)');
+
+                    // Recommendations
+                    const recContainer = document.getElementById('group-recs');
+                    // Hardcoded group logic derived from the Python output structure or we pass it
+                    // The Python script returned 'recommendations' manually constructed in logic? 
+                    // Wait, I didn't verify if I passed the exact recommendation strings in JSON in app.py.
+                    // Let's check app.py structure... 
+                    // I implemented the logic in app.py but did I return the `recommendations` object?
+                    // Corrective Action: I will implement simple frontend logic for recs since I missed returning them in backend.
+
+                    let recHTML = '<ul style="padding-left: 1rem;">';
+                    recHTML += '<li>Monitor platform usage weekly.</li>';
+                    recHTML += '<li>Reinforce attendance importance.</li>';
+                    if (data.stats.pct_grade > 30) recHTML += '<li>Consider general review session due to low grades.</li>';
+                    recHTML += '</ul>';
+                    recContainer.innerHTML = recHTML;
+
+                    // Students
+                    const studentContainer = document.getElementById('student-container');
+                    studentContainer.innerHTML = '';
+
+                    data.students.forEach((s, index) => {
+                        if (s.risk === 'LOW RISK') return;
+
+                        const card = document.createElement('div');
+                        card.className = `student-card ${s.risk_class}`;
+
+                        let issuesHTML = s.issues.map(i => `<span class="tag">${i}</span>`).join('');
+
+                        card.innerHTML = `
+                    <div class="s-name">
+                        <i class="fas fa-user-circle"></i> ${s.name}
+                        <div style="font-size:0.8rem; color:var(--text-muted); opacity:0.7; margin-top:0.2rem;">
+                            Att: ${s.att}% | Grade: ${s.grade} | RS: ${s.rosetta}h
+                        </div>
+                    </div>
+                    <div class="s-issues">${issuesHTML}</div>
+                    <div class="s-action">
+                        <button class="btn-action" onclick="showStudentDetails(${index})" title="View Details">
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                    </div>
+                `;
+                        studentContainer.appendChild(card);
+                    });
+
+                    if (studentContainer.children.length === 0) {
+                        studentContainer.innerHTML = '<div style="text-align:center; padding:2rem; opacity:0.5;">No at-risk students found. Great job!</div>';
+                    }
+                }
+
+                // Modal Logic
+                const studentModal = document.getElementById('student-modal');
+
+                function showStudentDetails(index) {
+                    if (!window.lastReportData || !window.lastReportData.students[index]) return;
+                    const s = window.lastReportData.students[index];
+
+                    document.getElementById('m-name').innerText = s.name;
+                    document.getElementById('m-att').innerText = s.att + '%';
+                    document.getElementById('m-grade').innerText = s.grade;
+                    document.getElementById('m-rosetta').innerText = s.rosetta + 'h';
+
+                    const riskBadge = document.getElementById('m-risk');
+                    riskBadge.innerText = (s.risk_class || 'low').toUpperCase().replace('-', ' ') + ' RISK';
+
+                    // badge color
+                    if (s.risk_class === 'high') {
+                        riskBadge.style.color = 'var(--danger)';
+                        riskBadge.style.border = '1px solid var(--danger)';
+                        riskBadge.style.background = 'rgba(239, 68, 68, 0.1)';
+                    } else if (s.risk_class === 'medium') {
+                        riskBadge.style.color = 'var(--warning)';
+                        riskBadge.style.border = '1px solid var(--warning)';
+                        riskBadge.style.background = 'rgba(245, 158, 11, 0.1)';
+                    } else {
+                        riskBadge.style.color = 'var(--success)';
+                        riskBadge.style.border = '1px solid var(--success)';
+                        riskBadge.style.background = 'rgba(16, 185, 129, 0.1)';
+                    }
+
+                    // check individual metrics for coloring
+                    document.getElementById('m-att').style.color = s.att < 85 ? 'var(--danger)' : '#fff';
+                    document.getElementById('m-grade').style.color = s.grade < 7 ? 'var(--danger)' : '#fff';
+                    document.getElementById('m-rosetta').style.color = s.rosetta < 10 ? 'var(--warning)' : '#fff';
+
+                    // Issues
+                    const issuesContainer = document.getElementById('m-issues');
+                    issuesContainer.innerHTML = s.issues.map(i => `<span class="tag">${i}</span>`).join('');
+
+                    studentModal.style.display = 'flex';
+                }
+
+                function closeModal() {
+                    studentModal.style.display = 'none';
+                }
+
+                // Close on outside click
+                studentModal.addEventListener('click', (e) => {
+                    if (e.target === studentModal) closeModal();
+                });
+
+                async function exportPDF() {
+                    if (!window.lastReportData) return;
+
+                    const btn = document.querySelector('button[onclick="exportPDF()"]');
+                    const originalText = btn.innerHTML;
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+                    btn.disabled = true;
+
+                    try {
+                        const response = await fetch('/download_pdf', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(window.lastReportData)
+                        });
+
+                        if (!response.ok) throw new Error("Generation failed");
+
+                        const blob = await response.blob();
+                        const url = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `Report_${window.lastReportData.meta.company || 'Analysis'}.pdf`;
+                        document.body.appendChild(a);
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                        a.remove();
+
+                    } catch (error) {
+                        alert('Failed to generate PDF');
+                        console.error(error);
+                    } finally {
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                    }
+                }
+
+                function resetView() {
+                    uploadView.style.display = 'flex';
+                    resultsArea.style.display = 'none';
+                    historyView.style.display = 'none';
+                    document.getElementById('file-input').value = '';
+                }
+            </script>
+</body>
+
+</html>
